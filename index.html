@@ -5,45 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>NEON BREAKER</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body,html{
-  width:100%;height:100%;overflow:hidden;
+* { margin:0; padding:0; box-sizing:border-box; }
+body, html {
+  width:100%; height:100%; overflow:hidden;
   background:#080810;
-  font-family:'Courier New',monospace;
-  user-select:none;touch-action:none;
+  font-family: 'Courier New', monospace;
+  user-select:none; touch-action:none;
 }
-canvas{display:block;}
-#ui{
-  position:absolute;top:0;left:0;right:0;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 18px;
-  pointer-events:none;
-  background:linear-gradient(to bottom,rgba(8,8,16,0.95),transparent);
+canvas { display:block; }
+#ui {
+  position:absolute; top:0; left:0; right:0;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 18px; pointer-events:none;
+  background:linear-gradient(to bottom, rgba(8,8,16,0.95), transparent);
 }
-.ut{color:#00f2ff;font-size:13px;font-weight:bold;letter-spacing:2px;}
-.ut b{color:#fff;}
-#overlay{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:14px;background:rgba(8,8,16,0.93);z-index:10;
+.ut { color:#00f2ff; font-size:13px; font-weight:bold; letter-spacing:2px; }
+.ut b { color:#ffffff; }
+#overlay {
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:14px; background:rgba(8,8,16,0.93); z-index:10;
 }
-.t{
-  font-size:clamp(32px,8vw,56px);font-weight:900;
-  letter-spacing:5px;text-align:center;color:#00f2ff;
-  text-shadow:0 0 30px #00f2ff,0 0 60px rgba(0,242,255,0.3);
+.title {
+  font-size:48px; font-weight:900; letter-spacing:5px;
+  text-align:center; color:#00f2ff;
+  text-shadow: 0 0 30px #00f2ff;
+  line-height:1.2;
 }
-.s{font-size:13px;color:rgba(255,255,255,0.45);letter-spacing:2px;text-align:center;line-height:1.9;}
-.btn{
-  background:transparent;border:2px solid #00f2ff;color:#00f2ff;
-  font-family:'Courier New',monospace;font-weight:bold;
-  font-size:14px;letter-spacing:3px;padding:11px 34px;
-  cursor:pointer;border-radius:2px;
+.sub {
+  font-size:13px; color:rgba(255,255,255,0.45);
+  letter-spacing:2px; text-align:center; line-height:1.9;
+}
+.btn {
+  background:transparent; border:2px solid #00f2ff; color:#00f2ff;
+  font-family:'Courier New', monospace; font-weight:bold;
+  font-size:14px; letter-spacing:3px; padding:12px 36px;
+  cursor:pointer; margin-top:8px;
   text-shadow:0 0 8px #00f2ff;
   box-shadow:0 0 18px rgba(0,242,255,0.25);
-  margin-top:6px;
+  -webkit-appearance:none; border-radius:0;
 }
-.hidden{display:none!important;}
+.btn.red {
+  border-color:#ff4455; color:#ff4455;
+  text-shadow:0 0 8px #ff4455;
+  box-shadow:0 0 18px rgba(255,68,85,0.25);
+}
+.score-txt { font-size:20px; color:#ffff00; text-shadow:0 0 12px #ffff00; }
+.stage-txt { font-size:14px; color:rgba(255,255,255,0.5); letter-spacing:2px; }
+.hidden { display:none !important; }
 </style>
 </head>
 <body>
@@ -51,315 +61,363 @@ canvas{display:block;}
 <div id="ui">
   <div class="ut">STG <b id="u-s">01</b>/100</div>
   <div class="ut">SCORE <b id="u-sc">0</b></div>
-  <div class="ut">♥ <b id="u-l">3</b></div>
+  <div class="ut">&#9829; <b id="u-l">3</b></div>
 </div>
 <div id="overlay">
   <div id="m0">
-    <div class="t">NEON<br>BREAKER</div>
-    <div class="s">마우스 / 터치로 패들 이동<br>모든 블록을 파괴하라</div>
+    <div class="title">NEON<br>BREAKER</div>
+    <div class="sub">화면을 움직여 패들 조작<br>모든 블록을 파괴하라</div>
     <button class="btn" id="b0">START</button>
   </div>
   <div id="m1" class="hidden">
-    <div class="t" style="color:#ff4455;text-shadow:0 0 30px #ff4455">GAME<br>OVER</div>
-    <div class="s" id="m1s"></div>
-    <button class="btn" style="border-color:#ff4455;color:#ff4455;text-shadow:0 0 8px #ff4455;box-shadow:0 0 18px rgba(255,68,85,0.25)" id="b1">RETRY</button>
+    <div class="title" style="color:#ff4455;text-shadow:0 0 30px #ff4455">GAME<br>OVER</div>
+    <div class="score-txt" id="m1sc"></div>
+    <div class="stage-txt" id="m1st"></div>
+    <button class="btn red" id="b1">RETRY</button>
   </div>
   <div id="m2" class="hidden">
-    <div class="t" style="color:#ffff00;text-shadow:0 0 30px #ffff00">ALL<br>CLEAR!</div>
-    <div class="s" id="m2s"></div>
+    <div class="title" style="color:#ffff00;text-shadow:0 0 30px #ffff00">ALL<br>CLEAR!</div>
+    <div class="score-txt" id="m2sc"></div>
     <button class="btn" id="b2">AGAIN</button>
   </div>
 </div>
 <script>
-const cv=document.getElementById('c');
-const cx=cv.getContext('2d');
-let W,H;
-function rsz(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
-window.addEventListener('resize',rsz);rsz();
+var canvas = document.getElementById('c');
+var ctx = canvas.getContext('2d');
+var W, H;
 
-// ── 상태 ──────────────────────────────
-let state='menu',stage=1,score=0,lives=3;
-let balls=[],bricks=[],parts=[],pups=[];
-let paddle={x:0,y:0,w:100,h:13,tx:0};
-let raf=null;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
 
-// ── 난이도 ────────────────────────────
-function d(s){
-  const t=(s-1)/99;
-  return{
-    rows: Math.min(2+Math.floor(s/7),8),
-    cols: Math.min(7+Math.floor(s/15),12),
-    hp:   1+Math.floor(s/7),
-    spd:  3.5+t*4.5,
-    pw:   Math.max(W*0.05,W*0.13-t*W*0.07)
+// 상태
+var state = 'menu';
+var stage = 1, score = 0, lives = 3;
+var balls = [], bricks = [], parts = [], pups = [];
+var paddle = { x:0, y:0, w:100, h:13, tx:0 };
+var raf = null;
+
+// 색상
+var COLORS = ['#00f2ff', '#ffffff', '#00f2ff', '#ffffff'];
+
+// 난이도
+function getDiff(s) {
+  var t = (s - 1) / 99;
+  return {
+    rows: Math.min(2 + Math.floor(s / 7), 8),
+    cols: Math.min(7 + Math.floor(s / 15), 12),
+    hp:   1 + Math.floor(s / 7),
+    spd:  3.5 + t * 4.5,
+    pw:   Math.max(W * 0.05, W * 0.13 - t * W * 0.07)
   };
 }
 
-// ── 초기화 ────────────────────────────
-function initStage(){
-  const df=d(stage);
-  bricks=[];parts=[];pups=[];
-  paddle.w=df.pw;
-  paddle.y=H-55;
-  paddle.x=W/2-paddle.w/2;
-  paddle.tx=paddle.x;
-  if(balls.length===0) balls=[mkBall(W/2,paddle.y-15,df.spd)];
+// 스테이지 초기화
+function initStage() {
+  var df = getDiff(stage);
+  bricks = []; parts = []; pups = [];
+  paddle.w = df.pw;
+  paddle.y = H - 55;
+  paddle.x = W / 2 - paddle.w / 2;
+  paddle.tx = paddle.x;
 
-  // 벽돌 크기 계산 (작게)
-  const gap=6;
-  const totalW=W*0.9;
-  const bw=(totalW-(df.cols-1)*gap)/df.cols;
-  const bh=Math.min(18,(H*0.4-df.rows*gap)/df.rows);
-  const sx=(W-totalW)/2;
-  const sy=H*0.1;
+  if (balls.length === 0) {
+    balls = [makeBall(W / 2, paddle.y - 15, df.spd, 0, -df.spd)];
+  }
 
-  // 단색 팔레트 (2가지만)
-  const BC=['#00f2ff','#ffffff'];
+  var gap = 6;
+  var totalW = W * 0.9;
+  var bw = (totalW - (df.cols - 1) * gap) / df.cols;
+  var bh = Math.min(18, (H * 0.4 - df.rows * gap) / df.rows);
+  var sx = (W - totalW) / 2;
+  var sy = H * 0.1;
 
-  for(let r=0;r<df.rows;r++){
-    for(let c=0;c<df.cols;c++){
-      const hp=df.hp;
+  for (var r = 0; r < df.rows; r++) {
+    for (var c = 0; c < df.cols; c++) {
+      var hp = df.hp;
       bricks.push({
-        x:sx+c*(bw+gap), y:sy+r*(bh+gap),
-        w:bw, h:bh,
-        hp, max:hp,
-        col: BC[r%2],
-        fl:0
+        x: sx + c * (bw + gap),
+        y: sy + r * (bh + gap),
+        w: bw, h: bh,
+        hp: hp, max: hp,
+        col: (r % 2 === 0) ? '#00f2ff' : '#ffffff',
+        fl: 0
       });
     }
   }
   updUI();
 }
 
-function mkBall(x,y,spd,vx,vy){
-  if(vx!==undefined){
-    const l=Math.hypot(vx,vy)||spd;
-    return{x,y,vx:vx/l*spd,vy:vy/l*spd,r:7,tr:[]};
-  }
-  return{x,y,vx:(Math.random()-0.5)*2,vy:-spd,r:7,tr:[]};
+function makeBall(x, y, spd, vx, vy) {
+  var len = Math.sqrt(vx * vx + vy * vy) || spd;
+  return {
+    x: x, y: y,
+    vx: (vx / len) * spd,
+    vy: (vy / len) * spd,
+    r: 7, tr: []
+  };
 }
 
-// ── 업데이트 ──────────────────────────
-function update(){
-  if(state!=='playing') return;
-  const spd=d(stage).spd;
+// 업데이트
+function update() {
+  if (state !== 'playing') return;
+  var df = getDiff(stage);
 
-  // 배경
-  cx.fillStyle='#080810';
-  cx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#080810';
+  ctx.fillRect(0, 0, W, H);
 
-  // 패들
-  paddle.x+=(paddle.tx-paddle.x)*0.2;
-  paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x));
+  // 패들 이동
+  paddle.x += (paddle.tx - paddle.x) * 0.2;
+  if (paddle.x < 0) paddle.x = 0;
+  if (paddle.x > W - paddle.w) paddle.x = W - paddle.w;
   drawPaddle();
 
   // 볼
-  for(let i=balls.length-1;i>=0;i--){
-    const b=balls[i];
-    b.tr.push({x:b.x,y:b.y});
-    if(b.tr.length>8) b.tr.shift();
-    b.x+=b.vx; b.y+=b.vy;
+  var i, j, b, br;
+  for (i = balls.length - 1; i >= 0; i--) {
+    b = balls[i];
+    b.tr.push({ x: b.x, y: b.y });
+    if (b.tr.length > 8) b.tr.shift();
+    b.x += b.vx;
+    b.y += b.vy;
 
     // 벽
-    if(b.x-b.r<0){b.x=b.r;b.vx=Math.abs(b.vx);}
-    if(b.x+b.r>W){b.x=W-b.r;b.vx=-Math.abs(b.vx);}
-    if(b.y-b.r<0){b.y=b.r;b.vy=Math.abs(b.vy);}
+    if (b.x - b.r < 0)  { b.x = b.r;     b.vx = Math.abs(b.vx); }
+    if (b.x + b.r > W)  { b.x = W - b.r; b.vx = -Math.abs(b.vx); }
+    if (b.y - b.r < 0)  { b.y = b.r;     b.vy = Math.abs(b.vy); }
 
     // 패들
-    if(b.vy>0&&b.x>paddle.x-b.r&&b.x<paddle.x+paddle.w+b.r&&
-       b.y+b.r>paddle.y&&b.y+b.r<paddle.y+paddle.h+10){
-      b.y=paddle.y-b.r;
-      const hit=(b.x-(paddle.x+paddle.w/2))/(paddle.w/2);
-      b.vx=hit*spd*1.2;
-      const l=Math.hypot(b.vx,b.vy);
-      b.vx=b.vx/l*spd;
-      b.vy=-Math.abs(b.vy/l*spd);
+    if (b.vy > 0 &&
+        b.x > paddle.x - b.r && b.x < paddle.x + paddle.w + b.r &&
+        b.y + b.r > paddle.y && b.y + b.r < paddle.y + paddle.h + 12) {
+      b.y = paddle.y - b.r;
+      var hit = (b.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+      b.vx = hit * df.spd * 1.2;
+      var len = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+      if (len > 0) { b.vx = (b.vx / len) * df.spd; }
+      b.vy = -Math.abs(df.spd * 0.85);
     }
 
     // 블록
-    for(let j=bricks.length-1;j>=0;j--){
-      const br=bricks[j];
-      if(b.x+b.r>br.x&&b.x-b.r<br.x+br.w&&
-         b.y+b.r>br.y&&b.y-b.r<br.y+br.h){
-        // 어느 면 충돌
-        const ov_x=Math.min(b.x+b.r-br.x,br.x+br.w-(b.x-b.r));
-        const ov_y=Math.min(b.y+b.r-br.y,br.y+br.h-(b.y-b.r));
-        if(ov_x<ov_y) b.vx*=-1; else b.vy*=-1;
+    for (j = bricks.length - 1; j >= 0; j--) {
+      br = bricks[j];
+      if (b.x + b.r > br.x && b.x - b.r < br.x + br.w &&
+          b.y + b.r > br.y && b.y - b.r < br.y + br.h) {
+        var ovx = Math.min(b.x + b.r - br.x, br.x + br.w - (b.x - b.r));
+        var ovy = Math.min(b.y + b.r - br.y, br.y + br.h - (b.y - b.r));
+        if (ovx < ovy) b.vx = -b.vx; else b.vy = -b.vy;
 
-        br.hp--; br.fl=5;
-        score+=10*stage;
-        pop(b.x,b.y,'#00f2ff',5);
+        br.hp--;
+        br.fl = 5;
+        score += 10 * stage;
+        pop(b.x, b.y, '#00f2ff', 5);
 
-        if(br.hp<=0){
-          score+=50*stage;
-          pop(br.x+br.w/2,br.y+br.h/2,'#fff',8);
-          if(Math.random()<0.15) pups.push({x:br.x+br.w/2,y:br.y,vy:2});
-          bricks.splice(j,1);
+        if (br.hp <= 0) {
+          score += 50 * stage;
+          pop(br.x + br.w / 2, br.y + br.h / 2, '#ffffff', 8);
+          if (Math.random() < 0.15) {
+            pups.push({ x: br.x + br.w / 2, y: br.y, vy: 2.5 });
+          }
+          bricks.splice(j, 1);
         }
-        updUI(); break;
+        updUI();
+        break;
       }
     }
 
-    // 낙하
-    if(b.y-b.r>H){balls.splice(i,1);continue;}
+    if (b.y - b.r > H) { balls.splice(i, 1); continue; }
     drawBall(b);
   }
 
   // 볼 없음
-  if(balls.length===0){
+  if (balls.length === 0) {
     lives--;
     updUI();
-    if(lives<=0){gameOver();return;}
-    balls=[mkBall(W/2,paddle.y-15,d(stage).spd)];
+    if (lives <= 0) { gameOver(); return; }
+    balls = [makeBall(W / 2, paddle.y - 15, getDiff(stage).spd, 0, -getDiff(stage).spd)];
   }
 
   // 파워업
-  for(let i=pups.length-1;i>=0;i--){
-    const p=pups[i];
-    p.y+=p.vy;
-    if(p.y>H){pups.splice(i,1);continue;}
-    if(p.y+8>paddle.y&&p.y<paddle.y+paddle.h&&p.x>paddle.x&&p.x<paddle.x+paddle.w){
-      // 멀티볼
-      if(balls.length>0){
-        const b=balls[0];
-        balls.push(mkBall(b.x,b.y,d(stage).spd,b.vx+2,b.vy));
-        balls.push(mkBall(b.x,b.y,d(stage).spd,b.vx-2,b.vy));
+  for (i = pups.length - 1; i >= 0; i--) {
+    var p = pups[i];
+    p.y += p.vy;
+    if (p.y > H) { pups.splice(i, 1); continue; }
+    if (p.y + 8 > paddle.y && p.y < paddle.y + paddle.h &&
+        p.x > paddle.x && p.x < paddle.x + paddle.w) {
+      if (balls.length > 0) {
+        var bb = balls[0];
+        balls.push(makeBall(bb.x, bb.y, getDiff(stage).spd, bb.vx + 2, bb.vy));
+        balls.push(makeBall(bb.x, bb.y, getDiff(stage).spd, bb.vx - 2, bb.vy));
       }
-      pop(p.x,p.y,'#ffff00',8);
-      pups.splice(i,1);continue;
+      pop(p.x, p.y, '#ffff00', 8);
+      pups.splice(i, 1);
+      continue;
     }
-    cx.fillStyle='#ffff00';
-    cx.font='bold 13px Courier New';
-    cx.textAlign='center';cx.textBaseline='middle';
-    cx.fillText('✦',p.x,p.y);
+    ctx.fillStyle = '#ffff00';
+    ctx.font = 'bold 14px Courier New';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('+', p.x, p.y);
   }
 
-  // 블록
-  bricks.forEach(drawBrick);
+  // 블록 그리기
+  for (i = 0; i < bricks.length; i++) {
+    drawBrick(bricks[i]);
+  }
 
   // 파티클
-  for(let i=parts.length-1;i>=0;i--){
-    const p=parts[i];
-    p.x+=p.vx;p.y+=p.vy;p.vy+=0.12;p.life-=0.03;
-    if(p.life<=0){parts.splice(i,1);continue;}
-    cx.globalAlpha=p.life;
-    cx.fillStyle=p.col;
-    cx.fillRect(p.x-2,p.y-2,4,4);
+  for (i = parts.length - 1; i >= 0; i--) {
+    var pt = parts[i];
+    pt.x += pt.vx; pt.y += pt.vy;
+    pt.vy += 0.12; pt.vx *= 0.97;
+    pt.life -= 0.03;
+    if (pt.life <= 0) { parts.splice(i, 1); continue; }
+    ctx.globalAlpha = pt.life;
+    ctx.fillStyle = pt.col;
+    ctx.fillRect(pt.x - 2, pt.y - 2, 4, 4);
   }
-  cx.globalAlpha=1;
+  ctx.globalAlpha = 1;
 
-  // 클리어
-  if(bricks.length===0){clear();return;}
-  raf=requestAnimationFrame(update);
+  if (bricks.length === 0) { stageClear(); return; }
+  raf = requestAnimationFrame(update);
 }
 
-// ── 그리기 ────────────────────────────
-function drawPaddle(){
-  cx.save();
-  cx.shadowColor='#00f2ff';cx.shadowBlur=16;
-  cx.fillStyle='#00f2ff';
-  cx.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);
-  cx.shadowBlur=0;
-  cx.fillStyle='rgba(255,255,255,0.5)';
-  cx.fillRect(paddle.x+3,paddle.y+2,paddle.w-6,3);
-  cx.restore();
+// 그리기
+function drawPaddle() {
+  ctx.save();
+  ctx.shadowColor = '#00f2ff';
+  ctx.shadowBlur = 16;
+  ctx.fillStyle = '#00f2ff';
+  ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillRect(paddle.x + 3, paddle.y + 2, paddle.w - 6, 3);
+  ctx.restore();
 }
 
-function drawBall(b){
-  // 트레일
-  b.tr.forEach((t,i)=>{
-    cx.globalAlpha=(i/b.tr.length)*0.2;
-    cx.fillStyle='#00f2ff';
-    cx.beginPath();cx.arc(t.x,t.y,b.r*(i/b.tr.length)*0.6,0,Math.PI*2);cx.fill();
-  });
-  cx.globalAlpha=1;
-  cx.save();
-  cx.shadowColor='#fff';cx.shadowBlur=14;
-  cx.fillStyle='#fff';
-  cx.beginPath();cx.arc(b.x,b.y,b.r,0,Math.PI*2);cx.fill();
-  cx.restore();
-}
-
-function drawBrick(b){
-  const fl=b.fl>0;
-  if(b.fl>0) b.fl--;
-  cx.save();
-  cx.shadowColor=fl?'#fff':b.col;cx.shadowBlur=fl?12:5;
-  // HP에 따라 투명도
-  const alpha=0.3+0.7*(b.hp/b.max);
-  cx.globalAlpha=alpha;
-  cx.fillStyle=b.col;
-  cx.fillRect(b.x,b.y,b.w,b.h);
-  cx.globalAlpha=1;
-  cx.strokeStyle=fl?'#fff':b.col;cx.lineWidth=1.5;
-  cx.strokeRect(b.x,b.y,b.w,b.h);
-  // HP 숫자
-  if(b.max>1){
-    cx.fillStyle=fl?'#fff':'rgba(255,255,255,0.7)';
-    cx.font=`bold ${Math.min(b.h*0.55,11)}px Courier New`;
-    cx.textAlign='center';cx.textBaseline='middle';
-    cx.fillText(b.hp,b.x+b.w/2,b.y+b.h/2);
+function drawBall(b) {
+  var i;
+  for (i = 0; i < b.tr.length; i++) {
+    ctx.globalAlpha = (i / b.tr.length) * 0.2;
+    ctx.fillStyle = '#00f2ff';
+    ctx.beginPath();
+    ctx.arc(b.tr[i].x, b.tr[i].y, b.r * (i / b.tr.length) * 0.6, 0, Math.PI * 2);
+    ctx.fill();
   }
-  cx.restore();
+  ctx.globalAlpha = 1;
+  ctx.save();
+  ctx.shadowColor = '#ffffff';
+  ctx.shadowBlur = 14;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
-function pop(x,y,col,n){
-  for(let i=0;i<n;i++){
-    const a=Math.random()*Math.PI*2,s=2+Math.random()*4;
-    parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,col,life:1});
+function drawBrick(b) {
+  if (b.fl > 0) b.fl--;
+  var fl = b.fl > 0;
+  ctx.save();
+  ctx.shadowColor = fl ? '#ffffff' : b.col;
+  ctx.shadowBlur = fl ? 12 : 5;
+  var alpha = 0.25 + 0.75 * (b.hp / b.max);
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = b.col;
+  ctx.fillRect(b.x, b.y, b.w, b.h);
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = fl ? '#ffffff' : b.col;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(b.x, b.y, b.w, b.h);
+  if (b.max > 1) {
+    ctx.fillStyle = fl ? '#ffffff' : 'rgba(255,255,255,0.7)';
+    ctx.font = 'bold ' + Math.min(b.h * 0.55, 11) + 'px Courier New';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(b.hp, b.x + b.w / 2, b.y + b.h / 2);
+  }
+  ctx.restore();
+}
+
+function pop(x, y, col, n) {
+  for (var i = 0; i < n; i++) {
+    var a = Math.random() * Math.PI * 2;
+    var s = 2 + Math.random() * 4;
+    parts.push({ x:x, y:y, vx:Math.cos(a)*s, vy:Math.sin(a)*s-2, col:col, life:1 });
   }
 }
 
-// ── 흐름 ──────────────────────────────
-function clear(){
-  state='clear';cancelAnimationFrame(raf);
-  score+=lives*100*stage;updUI();
-  if(stage>=100){
-    show('m2');
-    document.getElementById('m2s').textContent=`FINAL: ${score.toLocaleString()}`;
+// 게임 흐름
+function stageClear() {
+  state = 'clear';
+  cancelAnimationFrame(raf);
+  score += lives * 100 * stage;
+  updUI();
+  if (stage >= 100) {
+    showMenu('m2');
+    document.getElementById('m2sc').textContent = 'FINAL: ' + score.toLocaleString();
     return;
   }
-  // 바로 다음 스테이지
-  stage++;state='playing';
+  stage++;
+  state = 'playing';
   initStage();
-  raf=requestAnimationFrame(update);
+  raf = requestAnimationFrame(update);
 }
 
-function gameOver(){
-  state='gameover';cancelAnimationFrame(raf);
-  show('m1');
-  document.getElementById('m1s').textContent=`STAGE ${stage}  |  SCORE ${score.toLocaleString()}`;
+function gameOver() {
+  state = 'gameover';
+  cancelAnimationFrame(raf);
+  showMenu('m1');
+  document.getElementById('m1sc').textContent = 'SCORE: ' + score.toLocaleString();
+  document.getElementById('m1st').textContent = 'STAGE ' + stage + ' / 100';
 }
 
-function startGame(){
-  stage=1;score=0;lives=3;balls=[];
-  hide();state='playing';
+function startGame() {
+  stage = 1; score = 0; lives = 3; balls = [];
+  hideOverlay();
+  state = 'playing';
   initStage();
   cancelAnimationFrame(raf);
-  raf=requestAnimationFrame(update);
+  raf = requestAnimationFrame(update);
 }
 
-function show(id){
-  ['m0','m1','m2'].forEach(i=>document.getElementById(i).classList.toggle('hidden',i!==id));
-  document.getElementById('overlay').style.display='flex';
+function showMenu(id) {
+  var ids = ['m0', 'm1', 'm2'];
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (ids[i] === id) el.className = '';
+    else el.className = 'hidden';
+  }
+  document.getElementById('overlay').style.display = 'flex';
 }
-function hide(){document.getElementById('overlay').style.display='none';}
-
-function updUI(){
-  document.getElementById('u-s').textContent=String(stage).padStart(2,'0');
-  document.getElementById('u-sc').textContent=score.toLocaleString();
-  document.getElementById('u-l').textContent=lives;
+function hideOverlay() {
+  document.getElementById('overlay').style.display = 'none';
 }
 
-// ── 입력 ──────────────────────────────
-function mv(x){paddle.tx=x-paddle.w/2;}
-window.addEventListener('mousemove',e=>mv(e.clientX));
-window.addEventListener('touchmove',e=>{e.preventDefault();mv(e.touches[0].clientX);},{passive:false});
-window.addEventListener('touchstart',e=>{e.preventDefault();mv(e.touches[0].clientX);},{passive:false});
+function updUI() {
+  document.getElementById('u-s').textContent = String(stage).padStart(2, '0');
+  document.getElementById('u-sc').textContent = score.toLocaleString();
+  document.getElementById('u-l').textContent = lives;
+}
 
-document.getElementById('b0').onclick=startGame;
-document.getElementById('b1').onclick=startGame;
-document.getElementById('b2').onclick=startGame;
+// 입력
+function mv(x) { paddle.tx = x - paddle.w / 2; }
+window.addEventListener('mousemove', function(e) { mv(e.clientX); });
+canvas.addEventListener('touchmove', function(e) {
+  e.preventDefault();
+  mv(e.touches[0].clientX);
+}, { passive: false });
+canvas.addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  mv(e.touches[0].clientX);
+}, { passive: false });
+
+document.getElementById('b0').addEventListener('click', startGame);
+document.getElementById('b1').addEventListener('click', startGame);
+document.getElementById('b2').addEventListener('click', startGame);
 </script>
 </body>
 </html>
